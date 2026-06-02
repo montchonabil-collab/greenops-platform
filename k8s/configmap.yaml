@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: greenops-config
+data:
+  POSTGRES_USER: greenops
+  POSTGRES_DB: greenops
+  REDIS_ADDR: redis:6379
+  AUTH_URL: http://auth-service:8080
+  ENERGY_URL: http://energy-service:8080
+  ALERTS_URL: http://alerts-service:8080
+  GRAFANA_ADMIN_USER: admin

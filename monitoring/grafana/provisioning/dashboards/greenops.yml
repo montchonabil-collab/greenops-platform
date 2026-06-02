@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: GreenOps
+    orgId: 1
+    folder: GreenOps
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /opt/bitnami/grafana/dashboards

@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reverse-proxy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: reverse-proxy
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: reverse-proxy
+        app.kubernetes.io/component: edge
+    spec:
+      containers:
+        - name: caddy
+          image: public.ecr.aws/docker/library/caddy:2-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          volumeMounts:
+            - name: caddy-config
+              mountPath: /etc/caddy/Caddyfile
+              subPath: Caddyfile
+              readOnly: true
+            - name: frontend-assets
+              mountPath: /srv
+              readOnly: true
+            - name: caddy-data
+              mountPath: /data
+            - name: caddy-config-dir
+              mountPath: /config
+      volumes:
+        - name: caddy-config
+          configMap:
+            name: caddy-config
+        - name: frontend-assets
+          configMap:
+            name: frontend-assets
+        - name: caddy-data
+          emptyDir: {}
+        - name: caddy-config-dir
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reverse-proxy
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: reverse-proxy
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

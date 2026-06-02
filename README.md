@@ -50,4 +50,12 @@ docker compose down -v
 
 ## Phase Kubernetes
 
-Le dossier `k8s/` contient une base de travail pour migrer l'infrastructure Docker vers Kubernetes.
+Le dossier `k8s/` contient les manifests Kubernetes : namespace, deployments, services, ingress, secrets, configmaps, PVC, probes, HPA et network policies.
+
+```bash
+./scripts/k8s-build-images.sh
+./scripts/k8s-deploy.sh
+./scripts/k8s-smoke.sh
+```
+
+Consulte `k8s/README.md` pour les commandes de demo, de port-forward et de resilience.

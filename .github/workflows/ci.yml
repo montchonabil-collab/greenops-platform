@@ -29,3 +29,13 @@ jobs:
 
       - name: Validate Docker Compose
         run: docker compose config
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: v1.30.6
+
+      - name: Render Kubernetes manifests
+        run: |
+          kubectl kustomize --load-restrictor=LoadRestrictionsNone k8s > /tmp/greenops-k8s.yaml
+          test -s /tmp/greenops-k8s.yaml
