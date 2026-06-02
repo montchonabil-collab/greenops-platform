@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GreenOps Platform</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <style>
+      :root {
+        --bg: #f5f7f8;
+        --panel: #ffffff;
+        --ink: #17211f;
+        --muted: #68736f;
+        --line: #d9e0dd;
+        --green: #2f8f5b;
+        --blue: #256f9c;
+        --orange: #c46a23;
+        --red: #b83232;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .shell {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 240px 1fr;
+      }
+
+      aside {
+        background: #15211e;
+        color: #f5fbf8;
+        padding: 24px 18px;
+      }
+
+      .brand {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 28px;
+      }
+
+      .nav {
+        display: grid;
+        gap: 10px;
+      }
+
+      .nav span {
+        padding: 10px 12px;
+        border-radius: 8px;
+        color: #c9d7d2;
+      }
+
+      .nav .active {
+        background: #244039;
+        color: #ffffff;
+      }
+
+      main {
+        padding: 24px;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 22px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 26px;
+      }
+
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--muted);
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--green);
+      }
+
+      .toolbar {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .input {
+        height: 38px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 0 10px;
+        background: #fff;
+      }
+
+      .button {
+        height: 38px;
+        border: 0;
+        border-radius: 8px;
+        padding: 0 14px;
+        background: var(--ink);
+        color: #fff;
+        cursor: pointer;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .kpis {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 16px;
+      }
+
+      .label {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 8px;
+      }
+
+      .value {
+        font-size: 28px;
+        font-weight: 700;
+      }
+
+      .unit {
+        font-size: 14px;
+        color: var(--muted);
+        margin-left: 4px;
+      }
+
+      .content {
+        grid-template-columns: minmax(0, 1.35fr) minmax(320px, .65fr);
+        align-items: start;
+      }
+
+      .bar-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .bar-row {
+        display: grid;
+        grid-template-columns: 120px 1fr 72px;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .bar-track {
+        height: 12px;
+        border-radius: 999px;
+        background: #e7ecea;
+        overflow: hidden;
+      }
+
+      .bar-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: var(--green);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 10px 8px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+      }
+
+      th {
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .tag {
+        display: inline-flex;
+        border-radius: 999px;
+        padding: 4px 8px;
+        font-size: 12px;
+        color: #fff;
+      }
+
+      .warning {
+        background: var(--orange);
+      }
+
+      .critical {
+        background: var(--red);
+      }
+
+      .empty {
+        color: var(--muted);
+        padding: 16px 0;
+      }
+
+      @media (max-width: 980px) {
+        .shell {
+          grid-template-columns: 1fr;
+        }
+
+        aside {
+          display: none;
+        }
+
+        .kpis,
+        .content {
+          grid-template-columns: 1fr;
+        }
+
+        header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      const { useEffect, useMemo, useState } = React;
+
+      function App() {
+        const [username, setUsername] = useState("admin");
+        const [password, setPassword] = useState("greenops");
+        const [token, setToken] = useState("");
+        const [summary, setSummary] = useState(null);
+        const [metrics, setMetrics] = useState([]);
+        const [alerts, setAlerts] = useState([]);
+        const [health, setHealth] = useState("sync");
+
+        async function login() {
+          const response = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password })
+          });
+          const data = await response.json();
+          if (data.token) {
+            setToken(data.token);
+          }
+        }
+
+        async function load() {
+          setHealth("sync");
+          const [summaryRes, metricsRes, alertsRes, healthRes] = await Promise.all([
+            fetch("/api/energy/summary"),
+            fetch("/api/energy/metrics"),
+            fetch("/api/alerts"),
+            fetch("/api/health")
+          ]);
+          setSummary(await summaryRes.json());
+          setMetrics(await metricsRes.json());
+          setAlerts(await alertsRes.json());
+          setHealth(healthRes.ok ? "ok" : "error");
+        }
+
+        useEffect(() => {
+          login();
+          load();
+          const id = setInterval(load, 30000);
+          return () => clearInterval(id);
+        }, []);
+
+        const sortedMetrics = useMemo(() => {
+          return [...metrics].sort((a, b) => b.consumptionKwh - a.consumptionKwh).slice(0, 8);
+        }, [metrics]);
+
+        return React.createElement("div", { className: "shell" },
+          React.createElement("aside", null,
+            React.createElement("div", { className: "brand" }, "GreenOps"),
+            React.createElement("div", { className: "nav" },
+              React.createElement("span", { className: "active" }, "Dashboard"),
+              React.createElement("span", null, "Metriques"),
+              React.createElement("span", null, "Alertes"),
+              React.createElement("span", null, "Monitoring")
+            )
+          ),
+          React.createElement("main", null,
+            React.createElement("header", null,
+              React.createElement("div", null,
+                React.createElement("h1", null, "Supervision energetique"),
+                React.createElement("div", { className: "status" },
+                  React.createElement("span", { className: "dot" }),
+                  React.createElement("span", null, health === "ok" ? "Plateforme active" : "Synchronisation")
+                )
+              ),
+              React.createElement("div", { className: "toolbar" },
+                React.createElement("input", { className: "input", value: username, onChange: event => setUsername(event.target.value) }),
+                React.createElement("input", { className: "input", value: password, type: "password", onChange: event => setPassword(event.target.value) }),
+                React.createElement("button", { className: "button", onClick: login }, token ? "Connecte" : "Connexion"),
+                React.createElement("button", { className: "button", onClick: load }, "Actualiser")
+              )
+            ),
+            React.createElement("section", { className: "grid kpis" },
+              React.createElement(Kpi, { label: "Points collectes", value: summary?.points ?? 0 }),
+              React.createElement(Kpi, { label: "Conso moyenne", value: round(summary?.avgConsumptionKwh), unit: "kWh" }),
+              React.createElement(Kpi, { label: "Renouvelable", value: round(summary?.avgRenewablePercent), unit: "%" }),
+              React.createElement(Kpi, { label: "CO2 total", value: round(summary?.totalCo2Kg), unit: "kg" })
+            ),
+            React.createElement("section", { className: "grid content", style: { marginTop: 16 } },
+              React.createElement("div", { className: "panel" },
+                React.createElement("div", { className: "label" }, "Sites par consommation"),
+                React.createElement("div", { className: "bar-list" },
+                  sortedMetrics.map(item => React.createElement("div", { className: "bar-row", key: item.id },
+                    React.createElement("strong", null, item.site),
+                    React.createElement("div", { className: "bar-track" },
+                      React.createElement("div", { className: "bar-fill", style: { width: `${Math.min(100, item.consumptionKwh / 10)}%` } })
+                    ),
+                    React.createElement("span", null, `${round(item.consumptionKwh)} kWh`)
+                  ))
+                )
+              ),
+              React.createElement("div", { className: "panel" },
+                React.createElement("div", { className: "label" }, "Alertes recentes"),
+                alerts.length === 0
+                  ? React.createElement("div", { className: "empty" }, "Aucune alerte")
+                  : React.createElement("div", { className: "grid" },
+                      alerts.slice(0, 6).map(item => React.createElement("div", { key: item.id },
+                        React.createElement("span", { className: `tag ${item.level}` }, item.level),
+                        React.createElement("div", { style: { marginTop: 8 } }, item.message)
+                      ))
+                    )
+              )
+            ),
+            React.createElement("section", { className: "panel", style: { marginTop: 16 } },
+              React.createElement("div", { className: "label" }, "Dernieres mesures"),
+              React.createElement("table", null,
+                React.createElement("thead", null,
+                  React.createElement("tr", null,
+                    React.createElement("th", null, "Site"),
+                    React.createElement("th", null, "kWh"),
+                    React.createElement("th", null, "Renouvelable"),
+                    React.createElement("th", null, "CO2")
+                  )
+                ),
+                React.createElement("tbody", null,
+                  metrics.slice(0, 8).map(item => React.createElement("tr", { key: item.id },
+                    React.createElement("td", null, item.site),
+                    React.createElement("td", null, round(item.consumptionKwh)),
+                    React.createElement("td", null, `${round(item.renewablePercent)}%`),
+                    React.createElement("td", null, round(item.co2Kg))
+                  ))
+                )
+              )
+            )
+          )
+        );
+      }
+
+      function Kpi({ label, value, unit }) {
+        return React.createElement("div", { className: "panel" },
+          React.createElement("div", { className: "label" }, label),
+          React.createElement("div", { className: "value" },
+            value,
+            unit ? React.createElement("span", { className: "unit" }, unit) : null
+          )
+        );
+      }
+
+      function round(value) {
+        if (value === undefined || value === null) return 0;
+        return Math.round(Number(value) * 10) / 10;
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,19 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: gateway
+    static_configs:
+      - targets: ["gateway:8080"]
+
+  - job_name: auth-service
+    static_configs:
+      - targets: ["auth-service:8080"]
+
+  - job_name: energy-service
+    static_configs:
+      - targets: ["energy-service:8080"]
+
+  - job_name: alerts-service
+    static_configs:
+      - targets: ["alerts-service:8080"]
