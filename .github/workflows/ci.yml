@@ -25,7 +25,7 @@ jobs:
         run: go test ./...
 
       - name: Build Linux binaries
-        run: ./scripts/build-linux.sh
+        run: bash ./scripts/build-linux.sh
 
       - name: Validate Docker Compose
         run: docker compose config
