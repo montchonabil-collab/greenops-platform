@@ -48,6 +48,12 @@ docker compose down
 docker compose down -v
 ```
 
+## Documentation
+
+- `docs/architecture.md` : schema et explication de l'architecture.
+- `docs/soutenance.md` : recapitulatif complet du travail realise, du demarrage de la VM au deploiement Kubernetes.
+- `k8s/README.md` : guide de deploiement et de demo Kubernetes.
+
 ## Phase Kubernetes
 
 Le dossier `k8s/` contient les manifests Kubernetes : namespace, deployments, services, ingress, secrets, configmaps, PVC, probes, HPA et network policies.
