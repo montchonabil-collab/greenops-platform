@@ -825,3 +825,7 @@ GreenOps Platform est maintenant un projet complet qui demontre une chaine DevOp
 - documentation de mise en production et de soutenance.
 
 Le projet est donc pret pour une demonstration technique et pour une soutenance structuree autour des notions Docker, Kubernetes, observabilite et automatisation.
+
+## Merci
+
+MERCI POUR VOTRE ATTENTION
