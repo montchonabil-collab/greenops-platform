@@ -52,6 +52,7 @@ docker compose down -v
 
 - `docs/architecture.md` : schema et explication de l'architecture.
 - `docs/soutenance.md` : recapitulatif complet du travail realise, du demarrage de la VM au deploiement Kubernetes.
+- `docs/commandes-executees.md` : commandes executees et annotees pendant la realisation du projet.
 - `k8s/README.md` : guide de deploiement et de demo Kubernetes.
 
 ## Phase Kubernetes
