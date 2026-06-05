@@ -124,6 +124,22 @@
         cursor: pointer;
       }
 
+      .button.secondary {
+        background: #42524d;
+      }
+
+      .button:disabled {
+        cursor: default;
+        opacity: .72;
+      }
+
+      .notice {
+        margin-top: 8px;
+        color: var(--green);
+        font-size: 14px;
+        font-weight: 600;
+      }
+
       .grid {
         display: grid;
         gap: 16px;
@@ -261,9 +277,11 @@
         const [alerts, setAlerts] = useState([]);
         const [health, setHealth] = useState("sync");
         const [authStatus, setAuthStatus] = useState("idle");
+        const [notice, setNotice] = useState("");
 
         async function login() {
           setAuthStatus("sync");
+          setNotice("");
           try {
             const response = await fetch("/api/auth/login", {
               method: "POST",
@@ -280,6 +298,13 @@
           } catch (error) {
             setAuthStatus("error");
           }
+        }
+
+        function logout() {
+          setToken("");
+          setAuthStatus("idle");
+          setNotice("Vous vous \u00eates d\u00e9connect\u00e9s");
+          window.setTimeout(() => setNotice(""), 4000);
         }
 
         async function load() {
@@ -331,11 +356,15 @@
                   React.createElement("span", null, health === "ok" ? "Plateforme active" : "Synchronisation")
                 )
               ),
-              React.createElement("div", { className: "toolbar" },
-                React.createElement("input", { className: "input", value: username, onChange: event => setUsername(event.target.value) }),
-                React.createElement("input", { className: "input", value: password, type: "password", onChange: event => setPassword(event.target.value) }),
-                React.createElement("button", { className: "button", onClick: login }, authStatus === "sync" ? "Connexion..." : token ? "Connecte" : "Connexion"),
-                React.createElement("button", { className: "button", onClick: refreshData }, "Actualiser")
+              React.createElement("div", null,
+                React.createElement("div", { className: "toolbar" },
+                  React.createElement("input", { className: "input", value: username, onChange: event => setUsername(event.target.value) }),
+                  React.createElement("input", { className: "input", value: password, type: "password", onChange: event => setPassword(event.target.value) }),
+                  React.createElement("button", { className: "button", onClick: login, disabled: Boolean(token) }, authStatus === "sync" ? "Connexion..." : token ? "Connecte" : "Connexion"),
+                  token ? React.createElement("button", { className: "button secondary", onClick: logout }, "Deconnexion") : null,
+                  React.createElement("button", { className: "button", onClick: refreshData }, "Actualiser")
+                ),
+                notice ? React.createElement("div", { className: "notice" }, notice) : null
               )
             ),
             React.createElement("section", { className: "grid kpis" },
