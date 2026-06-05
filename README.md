@@ -53,7 +53,9 @@ docker compose down -v
 - `docs/architecture.md` : schema et explication de l'architecture.
 - `docs/soutenance.md` : recapitulatif complet du travail realise, du demarrage de la VM au deploiement Kubernetes.
 - `docs/commandes-executees.md` : commandes executees et annotees pendant la realisation du projet.
-- `docs/installation-machine-physique.md` : guide A a Z pour refaire le projet sur une machine physique Ubuntu.
+- `docs/installation-machine-physique.md` : guide A a Z pour refaire le projet sur une machine physique Windows.
+- `docs/installation-machine-physique-ubuntu.md` : variante Ubuntu conservee en reference.
+- `docs/greenops-platform-presentation.pptx` : PowerPoint simple de presentation du projet.
 - `k8s/README.md` : guide de deploiement et de demo Kubernetes.
 
 ## Phase Kubernetes
