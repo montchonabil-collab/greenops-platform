@@ -140,6 +140,13 @@
         font-weight: 600;
       }
 
+      .locked {
+        margin-top: 16px;
+        min-height: 180px;
+        display: grid;
+        align-content: center;
+      }
+
       .grid {
         display: grid;
         gap: 16px;
@@ -292,6 +299,7 @@
             if (data.token) {
               setToken(data.token);
               setAuthStatus("connected");
+              await load();
               return;
             }
             setAuthStatus("error");
@@ -303,8 +311,17 @@
         function logout() {
           setToken("");
           setAuthStatus("idle");
+          setSummary(null);
+          setMetrics([]);
+          setAlerts([]);
           setNotice("Vous vous \u00eates d\u00e9connect\u00e9s");
           window.setTimeout(() => setNotice(""), 4000);
+        }
+
+        async function loadHealth() {
+          setHealth("sync");
+          const healthRes = await fetch("/api/health");
+          setHealth(healthRes.ok ? "ok" : "error");
         }
 
         async function load() {
@@ -322,17 +339,23 @@
         }
 
         async function refreshData() {
+          if (!token) {
+            setNotice("Connectez-vous pour afficher les m\u00e9triques \u00e9nerg\u00e9tiques");
+            window.setTimeout(() => setNotice(""), 4000);
+            return;
+          }
           setHealth("sync");
           await fetch("/api/energy/simulate", { method: "POST" });
           await load();
         }
 
         useEffect(() => {
-          load();
-          const id = setInterval(load, 30000);
+          loadHealth();
+          const id = setInterval(loadHealth, 30000);
           return () => clearInterval(id);
         }, []);
 
+        const isConnected = Boolean(token);
         const sortedMetrics = useMemo(() => {
           return [...metrics].sort((a, b) => b.consumptionKwh - a.consumptionKwh).slice(0, 8);
         }, [metrics]);
@@ -360,65 +383,72 @@
                 React.createElement("div", { className: "toolbar" },
                   React.createElement("input", { className: "input", value: username, onChange: event => setUsername(event.target.value) }),
                   React.createElement("input", { className: "input", value: password, type: "password", onChange: event => setPassword(event.target.value) }),
-                  React.createElement("button", { className: "button", onClick: login, disabled: Boolean(token) }, authStatus === "sync" ? "Connexion..." : token ? "Connecte" : "Connexion"),
-                  token ? React.createElement("button", { className: "button secondary", onClick: logout }, "Deconnexion") : null,
-                  React.createElement("button", { className: "button", onClick: refreshData }, "Actualiser")
+                  React.createElement("button", { className: "button", onClick: login, disabled: isConnected }, authStatus === "sync" ? "Connexion..." : isConnected ? "Connecte" : "Connexion"),
+                  isConnected ? React.createElement("button", { className: "button secondary", onClick: logout }, "Deconnexion") : null,
+                  React.createElement("button", { className: "button", onClick: refreshData, disabled: !isConnected }, "Actualiser")
                 ),
                 notice ? React.createElement("div", { className: "notice" }, notice) : null
               )
             ),
-            React.createElement("section", { className: "grid kpis" },
-              React.createElement(Kpi, { label: "Points collectes", value: summary?.points ?? 0 }),
-              React.createElement(Kpi, { label: "Conso moyenne", value: round(summary?.avgConsumptionKwh), unit: "kWh" }),
-              React.createElement(Kpi, { label: "Renouvelable", value: round(summary?.avgRenewablePercent), unit: "%" }),
-              React.createElement(Kpi, { label: "CO2 total", value: round(summary?.totalCo2Kg), unit: "kg" })
-            ),
-            React.createElement("section", { className: "grid content", style: { marginTop: 16 } },
-              React.createElement("div", { className: "panel" },
-                React.createElement("div", { className: "label" }, "Sites par consommation"),
-                React.createElement("div", { className: "bar-list" },
-                  sortedMetrics.map(item => React.createElement("div", { className: "bar-row", key: item.id },
-                    React.createElement("strong", null, item.site),
-                    React.createElement("div", { className: "bar-track" },
-                      React.createElement("div", { className: "bar-fill", style: { width: `${Math.min(100, item.consumptionKwh / 10)}%` } })
-                    ),
-                    React.createElement("span", null, `${round(item.consumptionKwh)} kWh`)
-                  ))
-                )
-              ),
-              React.createElement("div", { className: "panel" },
-                React.createElement("div", { className: "label" }, "Alertes recentes"),
-                alerts.length === 0
-                  ? React.createElement("div", { className: "empty" }, "Aucune alerte")
-                  : React.createElement("div", { className: "grid" },
-                      alerts.slice(0, 6).map(item => React.createElement("div", { key: item.id },
-                        React.createElement("span", { className: `tag ${item.level}` }, item.level),
-                        React.createElement("div", { style: { marginTop: 8 } }, item.message)
+            isConnected
+              ? React.createElement(React.Fragment, null,
+                React.createElement("section", { className: "grid kpis" },
+                  React.createElement(Kpi, { label: "Points collectes", value: summary?.points ?? 0 }),
+                  React.createElement(Kpi, { label: "Conso moyenne", value: round(summary?.avgConsumptionKwh), unit: "kWh" }),
+                  React.createElement(Kpi, { label: "Renouvelable", value: round(summary?.avgRenewablePercent), unit: "%" }),
+                  React.createElement(Kpi, { label: "CO2 total", value: round(summary?.totalCo2Kg), unit: "kg" })
+                ),
+                React.createElement("section", { className: "grid content", style: { marginTop: 16 } },
+                  React.createElement("div", { className: "panel" },
+                    React.createElement("div", { className: "label" }, "Sites par consommation"),
+                    React.createElement("div", { className: "bar-list" },
+                      sortedMetrics.map(item => React.createElement("div", { className: "bar-row", key: item.id },
+                        React.createElement("strong", null, item.site),
+                        React.createElement("div", { className: "bar-track" },
+                          React.createElement("div", { className: "bar-fill", style: { width: `${Math.min(100, item.consumptionKwh / 10)}%` } })
+                        ),
+                        React.createElement("span", null, `${round(item.consumptionKwh)} kWh`)
                       ))
                     )
-              )
-            ),
-            React.createElement("section", { className: "panel", style: { marginTop: 16 } },
-              React.createElement("div", { className: "label" }, "Dernieres mesures"),
-              React.createElement("table", null,
-                React.createElement("thead", null,
-                  React.createElement("tr", null,
-                    React.createElement("th", null, "Site"),
-                    React.createElement("th", null, "kWh"),
-                    React.createElement("th", null, "Renouvelable"),
-                    React.createElement("th", null, "CO2")
+                  ),
+                  React.createElement("div", { className: "panel" },
+                    React.createElement("div", { className: "label" }, "Alertes recentes"),
+                    alerts.length === 0
+                      ? React.createElement("div", { className: "empty" }, "Aucune alerte")
+                      : React.createElement("div", { className: "grid" },
+                          alerts.slice(0, 6).map(item => React.createElement("div", { key: item.id },
+                            React.createElement("span", { className: `tag ${item.level}` }, item.level),
+                            React.createElement("div", { style: { marginTop: 8 } }, item.message)
+                          ))
+                        )
                   )
                 ),
-                React.createElement("tbody", null,
-                  metrics.slice(0, 8).map(item => React.createElement("tr", { key: item.id },
-                    React.createElement("td", null, item.site),
-                    React.createElement("td", null, round(item.consumptionKwh)),
-                    React.createElement("td", null, `${round(item.renewablePercent)}%`),
-                    React.createElement("td", null, round(item.co2Kg))
-                  ))
+                React.createElement("section", { className: "panel", style: { marginTop: 16 } },
+                  React.createElement("div", { className: "label" }, "Dernieres mesures"),
+                  React.createElement("table", null,
+                    React.createElement("thead", null,
+                      React.createElement("tr", null,
+                        React.createElement("th", null, "Site"),
+                        React.createElement("th", null, "kWh"),
+                        React.createElement("th", null, "Renouvelable"),
+                        React.createElement("th", null, "CO2")
+                      )
+                    ),
+                    React.createElement("tbody", null,
+                      metrics.slice(0, 8).map(item => React.createElement("tr", { key: item.id },
+                        React.createElement("td", null, item.site),
+                        React.createElement("td", null, round(item.consumptionKwh)),
+                        React.createElement("td", null, `${round(item.renewablePercent)}%`),
+                        React.createElement("td", null, round(item.co2Kg))
+                      ))
+                    )
+                  )
                 )
               )
-            )
+              : React.createElement("section", { className: "panel locked" },
+                  React.createElement("div", { className: "label" }, "Acces protege"),
+                  React.createElement("div", { className: "empty" }, "Connectez-vous pour afficher les metriques energetiques.")
+                )
           )
         );
       }
