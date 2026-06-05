@@ -7,9 +7,9 @@ NAMESPACE="${NAMESPACE:-greenops}"
 kubectl apply -f "$ROOT_DIR/k8s/namespace.yaml"
 kubectl create secret generic greenops-secrets \
   --namespace "$NAMESPACE" \
-  --from-literal=JWT_SECRET="${JWT_SECRET:-change-me-in-production}" \
-  --from-literal=POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-greenops}" \
-  --from-literal=GRAFANA_ADMIN_PASSWORD="${GRAFANA_ADMIN_PASSWORD:-greenops}" \
+  --from-literal=JWT_SECRET="${JWT_SECRET:-GreenOpsJwtDemo2026u7N9pQ2sV5xL8rT4mK6c}" \
+  --from-literal=POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-GreenOpsPgDemo2026V7nR4qT9sL2}" \
+  --from-literal=GRAFANA_ADMIN_PASSWORD="${GRAFANA_ADMIN_PASSWORD:-GreenOpsGrafanaDemo2026Q8mK5pZ1vX}" \
   --dry-run=client \
   -o yaml | kubectl apply -f -
 

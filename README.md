@@ -34,10 +34,15 @@ Acces :
 - Prometheus : http://192.168.242.132:9090
 - Grafana : http://192.168.242.132:3001
 
-Compte de demo :
+Compte GreenOps de demo :
 
 - utilisateur : `admin`
 - mot de passe : `greenops`
+
+Compte Grafana de demo :
+
+- utilisateur : `admin`
+- mot de passe : `GreenOpsGrafanaDemo2026Q8mK5pZ1vX`
 
 ## Commandes utiles
 

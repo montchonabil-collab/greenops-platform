@@ -16,7 +16,7 @@ type loginRequest struct {
 
 func main() {
 	service := common.Env("SERVICE_NAME", "auth-service")
-	secret := common.Env("JWT_SECRET", "change-me-in-production")
+	secret := common.Env("JWT_SECRET", "GreenOpsJwtDemo2026u7N9pQ2sV5xL8rT4mK6c")
 	metrics := common.NewMetrics(service)
 
 	mux := http.NewServeMux()

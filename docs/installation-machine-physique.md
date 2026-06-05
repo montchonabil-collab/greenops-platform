@@ -451,14 +451,14 @@ Exemple de contenu pour une demo :
 
 ```text
 PROJECT_NAME=greenops
-JWT_SECRET=change-me-in-production
+JWT_SECRET=GreenOpsJwtDemo2026u7N9pQ2sV5xL8rT4mK6c
 POSTGRES_USER=greenops
-POSTGRES_PASSWORD=greenops
+POSTGRES_PASSWORD=GreenOpsPgDemo2026V7nR4qT9sL2
 POSTGRES_DB=greenops
-DATABASE_URL=postgres://greenops:greenops@postgres:5432/greenops?sslmode=disable
+DATABASE_URL=postgres://greenops:GreenOpsPgDemo2026V7nR4qT9sL2@postgres:5432/greenops?sslmode=disable
 REDIS_ADDR=redis:6379
 GRAFANA_ADMIN_USER=admin
-GRAFANA_ADMIN_PASSWORD=greenops
+GRAFANA_ADMIN_PASSWORD=GreenOpsGrafanaDemo2026Q8mK5pZ1vX
 ```
 
 Verifier que le fichier existe :
@@ -681,7 +681,7 @@ Compte Grafana de demo :
 
 ```text
 utilisateur : admin
-mot de passe : greenops
+mot de passe : GreenOpsGrafanaDemo2026Q8mK5pZ1vX
 ```
 
 Annotation : sur la machine Windows, `localhost` pointe vers le PC lui-meme.
@@ -957,9 +957,9 @@ Annotation : les manifests Kubernetes utilisent ces images locales.
 Definir les valeurs de demo dans PowerShell :
 
 ```powershell
-$env:JWT_SECRET = "change-me-in-production"
-$env:POSTGRES_PASSWORD = "greenops"
-$env:GRAFANA_ADMIN_PASSWORD = "greenops"
+$env:JWT_SECRET = "GreenOpsJwtDemo2026u7N9pQ2sV5xL8rT4mK6c"
+$env:POSTGRES_PASSWORD = "GreenOpsPgDemo2026V7nR4qT9sL2"
+$env:GRAFANA_ADMIN_PASSWORD = "GreenOpsGrafanaDemo2026Q8mK5pZ1vX"
 ```
 
 Creer le namespace :
@@ -1705,7 +1705,7 @@ docker build -t greenops-auth-service:latest -f .\services\auth\Dockerfile .\ser
 docker build -t greenops-energy-service:latest -f .\services\energy\Dockerfile .\services
 docker build -t greenops-alerts-service:latest -f .\services\alerts\Dockerfile .\services
 kubectl apply -f .\k8s\namespace.yaml
-kubectl create secret generic greenops-secrets --namespace greenops --from-literal=JWT_SECRET="change-me-in-production" --from-literal=POSTGRES_PASSWORD="greenops" --from-literal=GRAFANA_ADMIN_PASSWORD="greenops" --dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret generic greenops-secrets --namespace greenops --from-literal=JWT_SECRET="GreenOpsJwtDemo2026u7N9pQ2sV5xL8rT4mK6c" --from-literal=POSTGRES_PASSWORD="GreenOpsPgDemo2026V7nR4qT9sL2" --from-literal=GRAFANA_ADMIN_PASSWORD="GreenOpsGrafanaDemo2026Q8mK5pZ1vX" --dry-run=client -o yaml | kubectl apply -f -
 kubectl kustomize --load-restrictor=LoadRestrictionsNone .\k8s | kubectl apply -f -
 kubectl get pods -n greenops -o wide
 kubectl rollout status deployment/gateway -n greenops --timeout=180s

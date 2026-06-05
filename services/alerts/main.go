@@ -41,7 +41,7 @@ func main() {
 	service := common.Env("SERVICE_NAME", "alerts-service")
 	metrics := common.NewMetrics(service)
 
-	db := connectDB(ctx, common.Env("DATABASE_URL", "postgres://greenops:greenops@postgres:5432/greenops?sslmode=disable"))
+	db := connectDB(ctx, common.Env("DATABASE_URL", "postgres://greenops:GreenOpsPgDemo2026V7nR4qT9sL2@postgres:5432/greenops?sslmode=disable"))
 	defer db.Close()
 
 	cache := redis.NewClient(&redis.Options{Addr: common.Env("REDIS_ADDR", "redis:6379")})

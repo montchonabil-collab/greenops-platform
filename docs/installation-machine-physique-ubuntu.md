@@ -373,14 +373,14 @@ Exemple de contenu pour une demo locale :
 
 ```text
 PROJECT_NAME=greenops
-JWT_SECRET=change-me-in-production
+JWT_SECRET=GreenOpsJwtDemo2026u7N9pQ2sV5xL8rT4mK6c
 POSTGRES_USER=greenops
-POSTGRES_PASSWORD=greenops
+POSTGRES_PASSWORD=GreenOpsPgDemo2026V7nR4qT9sL2
 POSTGRES_DB=greenops
-DATABASE_URL=postgres://greenops:greenops@postgres:5432/greenops?sslmode=disable
+DATABASE_URL=postgres://greenops:GreenOpsPgDemo2026V7nR4qT9sL2@postgres:5432/greenops?sslmode=disable
 REDIS_ADDR=redis:6379
 GRAFANA_ADMIN_USER=admin
-GRAFANA_ADMIN_PASSWORD=greenops
+GRAFANA_ADMIN_PASSWORD=GreenOpsGrafanaDemo2026Q8mK5pZ1vX
 ```
 
 Proteger le fichier :
@@ -528,7 +528,7 @@ Compte Grafana de demo :
 
 ```text
 utilisateur : admin
-mot de passe : greenops
+mot de passe : GreenOpsGrafanaDemo2026Q8mK5pZ1vX
 ```
 
 Annotation : les autres machines ne doivent pas utiliser `localhost`, car `localhost` designe leur propre ordinateur.
@@ -721,12 +721,12 @@ Annotation : sans cette etape, les pods applicatifs peuvent rester en `ImagePull
 
 ## 23. Secrets Kubernetes
 
-Pour une demo locale, definir des valeurs simples :
+Pour une demo locale, definir des valeurs non generiques :
 
 ```bash
-export JWT_SECRET="change-me-in-production"
-export POSTGRES_PASSWORD="greenops"
-export GRAFANA_ADMIN_PASSWORD="greenops"
+export JWT_SECRET="GreenOpsJwtDemo2026u7N9pQ2sV5xL8rT4mK6c"
+export POSTGRES_PASSWORD="GreenOpsPgDemo2026V7nR4qT9sL2"
+export GRAFANA_ADMIN_PASSWORD="GreenOpsGrafanaDemo2026Q8mK5pZ1vX"
 ```
 
 Pour un vrai environnement, utiliser des secrets plus longs :

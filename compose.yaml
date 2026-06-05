@@ -36,7 +36,7 @@ services:
       dockerfile: auth/Dockerfile
     environment:
       SERVICE_NAME: auth-service
-      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      JWT_SECRET: ${JWT_SECRET:-GreenOpsJwtDemo2026u7N9pQ2sV5xL8rT4mK6c}
     networks:
       - backend
 
@@ -46,7 +46,7 @@ services:
       dockerfile: energy/Dockerfile
     environment:
       SERVICE_NAME: energy-service
-      DATABASE_URL: ${DATABASE_URL:-postgres://greenops:greenops@postgres:5432/greenops?sslmode=disable}
+      DATABASE_URL: ${DATABASE_URL:-postgres://greenops:GreenOpsPgDemo2026V7nR4qT9sL2@postgres:5432/greenops?sslmode=disable}
       REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
     depends_on:
       postgres:
@@ -63,7 +63,7 @@ services:
       dockerfile: alerts/Dockerfile
     environment:
       SERVICE_NAME: alerts-service
-      DATABASE_URL: ${DATABASE_URL:-postgres://greenops:greenops@postgres:5432/greenops?sslmode=disable}
+      DATABASE_URL: ${DATABASE_URL:-postgres://greenops:GreenOpsPgDemo2026V7nR4qT9sL2@postgres:5432/greenops?sslmode=disable}
       REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
     depends_on:
       postgres:
@@ -78,7 +78,7 @@ services:
     image: public.ecr.aws/docker/library/postgres:16-alpine
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-greenops}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-greenops}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-GreenOpsPgDemo2026V7nR4qT9sL2}
       POSTGRES_DB: ${POSTGRES_DB:-greenops}
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -123,7 +123,7 @@ services:
       - "3001:3000"
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-greenops}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-GreenOpsGrafanaDemo2026Q8mK5pZ1vX}
       GF_PATHS_PROVISIONING: /opt/bitnami/grafana/conf/provisioning
     volumes:
       - grafana_data:/opt/bitnami/grafana/data
