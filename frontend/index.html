@@ -260,16 +260,25 @@
         const [metrics, setMetrics] = useState([]);
         const [alerts, setAlerts] = useState([]);
         const [health, setHealth] = useState("sync");
+        const [authStatus, setAuthStatus] = useState("idle");
 
         async function login() {
-          const response = await fetch("/api/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password })
-          });
-          const data = await response.json();
-          if (data.token) {
-            setToken(data.token);
+          setAuthStatus("sync");
+          try {
+            const response = await fetch("/api/auth/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+            if (data.token) {
+              setToken(data.token);
+              setAuthStatus("connected");
+              return;
+            }
+            setAuthStatus("error");
+          } catch (error) {
+            setAuthStatus("error");
           }
         }
 
@@ -294,7 +303,6 @@
         }
 
         useEffect(() => {
-          login();
           load();
           const id = setInterval(load, 30000);
           return () => clearInterval(id);
@@ -326,7 +334,7 @@
               React.createElement("div", { className: "toolbar" },
                 React.createElement("input", { className: "input", value: username, onChange: event => setUsername(event.target.value) }),
                 React.createElement("input", { className: "input", value: password, type: "password", onChange: event => setPassword(event.target.value) }),
-                React.createElement("button", { className: "button", onClick: login }, token ? "Connecte" : "Connexion"),
+                React.createElement("button", { className: "button", onClick: login }, authStatus === "sync" ? "Connexion..." : token ? "Connecte" : "Connexion"),
                 React.createElement("button", { className: "button", onClick: refreshData }, "Actualiser")
               )
             ),
