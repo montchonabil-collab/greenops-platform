@@ -59,6 +59,7 @@ func main() {
 	mux.HandleFunc("/metrics", metrics.Handler)
 	mux.HandleFunc("/energy/metrics", a.handleMetrics)
 	mux.HandleFunc("/energy/summary", a.handleSummary)
+	mux.HandleFunc("/energy/simulate", a.handleSimulate)
 
 	addr := ":8080"
 	log.Printf("%s listening on %s", service, addr)
@@ -140,6 +141,22 @@ LIMIT 24;
 	common.JSON(w, http.StatusOK, items)
 }
 
+func (a *app) handleSimulate(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost && r.Method != http.MethodGet {
+		common.Error(w, a.metrics, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	item, err := a.insertDemoMetric(r.Context())
+	if err != nil {
+		common.Error(w, a.metrics, http.StatusInternalServerError, "metric simulation failed")
+		return
+	}
+
+	_ = a.cache.Del(r.Context(), "energy:summary").Err()
+	common.JSON(w, http.StatusCreated, item)
+}
+
 func (a *app) handleSummary(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		common.Error(w, a.metrics, http.StatusMethodNotAllowed, "method not allowed")
@@ -163,6 +180,60 @@ func (a *app) handleSummary(w http.ResponseWriter, r *http.Request) {
 	raw, _ := json.Marshal(value)
 	_ = a.cache.Set(ctx, "energy:summary", raw, 30*time.Second).Err()
 	common.JSON(w, http.StatusOK, value)
+}
+
+type demoProfile struct {
+	site        string
+	consumption float64
+	renewable   float64
+}
+
+func (a *app) insertDemoMetric(ctx context.Context) (energyMetric, error) {
+	profiles := []demoProfile{
+		{"Paris HQ", 660, 72},
+		{"Lyon DC", 930, 36},
+		{"Nantes Lab", 410, 84},
+		{"Marseille Hub", 745, 48},
+	}
+
+	var count int
+	if err := a.db.QueryRow(ctx, `SELECT COUNT(*)::int FROM energy_metrics;`).Scan(&count); err != nil {
+		return energyMetric{}, err
+	}
+
+	now := time.Now().UTC()
+	profile := profiles[count%len(profiles)]
+	cycle := count / len(profiles)
+	wave := float64((cycle%9)-4) * 18.5
+	seconds := float64(now.Second()%12) * 2.4
+	consumption := profile.consumption + wave + seconds
+	renewable := clamp(profile.renewable+float64((cycle%7)-3)*2.6, 25, 90)
+	co2 := consumption * (1 - renewable/100) * 0.58
+
+	var item energyMetric
+	err := a.db.QueryRow(ctx, `
+INSERT INTO energy_metrics (site, consumption_kwh, renewable_percent, co2_kg, recorded_at)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, site, consumption_kwh, renewable_percent, co2_kg, recorded_at;
+`, profile.site, consumption, renewable, co2, now).Scan(
+		&item.ID,
+		&item.Site,
+		&item.ConsumptionKWh,
+		&item.RenewablePercent,
+		&item.CO2Kg,
+		&item.RecordedAt,
+	)
+	return item, err
+}
+
+func clamp(value, min, max float64) float64 {
+	if value < min {
+		return min
+	}
+	if value > max {
+		return max
+	}
+	return value
 }
 
 func (a *app) summary(ctx context.Context) (summary, error) {
